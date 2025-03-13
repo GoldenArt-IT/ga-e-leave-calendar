@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from streamlit_calendar import calendar
-import json
 
 # --- Sample Delivery Data ---
 sample_data = [
