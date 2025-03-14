@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from streamlit_calendar import calendar
 
+st.set_page_config(layout="wide")
+
 # --- Sample Delivery Data ---
 sample_data = [
     {"Date": "2025-03-01", "Limit Order": "ORD123", "M3": 20, "Deliverer": "Alice", "Lorry": "Truck-7"},
