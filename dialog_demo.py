@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_calendar import calendar
 
-st.set_page_config(layout="wide")
+
 
 # --- Sample Delivery Data ---
 sample_data = [
