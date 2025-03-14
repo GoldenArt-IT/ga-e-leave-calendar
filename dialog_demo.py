@@ -5,6 +5,7 @@ from streamlit_calendar import calendar
 # --- Sample Delivery Data ---
 sample_data = [
     {"Date": "2025-03-01", "Limit Order": "ORD123", "M3": 20, "Deliverer": "Alice", "Lorry": "Truck-7"},
+    {"Date": "2025-03-01", "Limit Order": "ORD123", "M3": 20, "Deliverer": "Atan", "Lorry": "Truck-2"},
     {"Date": "2025-03-05", "Limit Order": "ORD456", "M3": 15, "Deliverer": "Bob", "Lorry": "Truck-3"},
     {"Date": "2025-03-10", "Limit Order": "ORD789", "M3": 25, "Deliverer": "Charlie", "Lorry": "Truck-9"},
     {"Date": "2025-03-15", "Limit Order": "ORD101", "M3": 30, "Deliverer": "David", "Lorry": "Truck-5"},
