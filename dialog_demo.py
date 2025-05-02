@@ -40,6 +40,7 @@ cal_options = {
 
 # Display calendar and detect selected event
 selected_event = calendar(events=events, options=cal_options, key="calendar")
+selected_event
 
 # Show selected event details
 # if selected_event:
