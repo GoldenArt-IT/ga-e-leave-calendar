@@ -14,7 +14,7 @@ df_outfilter_gatepass = df_outfilter_gatepass[df_outfilter_gatepass['GATEPASS IN
 clean_df = df.drop(['E LEAVE RECORDS', 'GATEPASS OUT', 'GATEPASS IN', 'DIVISION'], axis=1)
 
 
-st.title("GA Man Power Calendar 📅")
+st.title("GA E-Leave Calendar 📅")
 
 # Convert date columns
 df['LEAVE ON'] = pd.to_datetime(df["LEAVE ON"])
