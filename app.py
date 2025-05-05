@@ -3,10 +3,16 @@ import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 from streamlit_calendar import calendar
 
+st.set_page_config(layout="wide")
+
 ## Load data from ALL E LEAVE RECORDS - tabsheet : DATA
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(worksheet="DATA", ttl=3000)
 df = df.dropna(how="all")
+df_outfilter_gatepass = df[df['GATEPASS OUT'].isna() | (df['GATEPASS OUT'] == '')]
+df_outfilter_gatepass = df_outfilter_gatepass[df_outfilter_gatepass['GATEPASS IN'].isna() | (df_outfilter_gatepass['GATEPASS IN'] == '')]
+clean_df = df.drop(['E LEAVE RECORDS', 'GATEPASS OUT', 'GATEPASS IN', 'DIVISION'], axis=1)
+
 
 st.title("GA Man Power Calendar 📅")
 
@@ -47,29 +53,46 @@ cal_options = {
     },
     "events": events,
 }
+col1, col2 = st.columns([1,1.5])
 
-cal_ret = calendar(key="leave_cal", options=cal_options, events=events)
-# cal_ret
+with col1:
+    cal_ret = calendar(key="leave_cal", options=cal_options, events=events)
+    # cal_ret
 
-## extract ISO date when user clicks a day
-if cal_ret and cal_ret.get("callback") == "eventClick":
-    ## e.g. "2025-05-29T00:00:00.000Z" → "05/29/2025"
-    sel_date = cal_ret["eventClick"]["event"]
-    
-    sel_date = pd.to_datetime(sel_date.get('start')).strftime('%m/%d/%Y')
-    # text = st.write("yahoo")
+with col2:
+    ## extract ISO date when user clicks a day
+    if cal_ret and cal_ret.get("callback") == "eventClick":
+        ## e.g. "2025-05-29T00:00:00.000Z" → "05/29/2025"
+        sel_date = cal_ret["eventClick"]["event"]
+        
+        sel_date = pd.to_datetime(sel_date.get('start')).strftime('%m/%d/%Y')
+        # text = st.write("yahoo")
 
-df['LEAVE ON'] = pd.to_datetime(df["LEAVE ON"]).dt.strftime('%m/%d/%Y')
-df['LEAVE UNTIL'] = pd.to_datetime(df["LEAVE UNTIL"]).dt.strftime('%m/%d/%Y')
+        df['LEAVE ON'] = pd.to_datetime(df["LEAVE ON"]).dt.strftime('%m/%d/%Y')
+        df['LEAVE UNTIL'] = pd.to_datetime(df["LEAVE UNTIL"]).dt.strftime('%m/%d/%Y')
 
 
-mask = (df['LEAVE ON'] <= sel_date) & (df['LEAVE UNTIL'] >= sel_date)
 
-df_absent = df.loc[mask, ['DEPARTMENT','STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
-df_absent = pd.DataFrame.from_dict(df_absent)
+        mask = (df['LEAVE ON'] <= sel_date) & (df['LEAVE UNTIL'] >= sel_date)
 
-@st.dialog(f"Staff Absent on {sel_date}")
-def displayListAbsent():
-    df_absent
+        df_absent = df.loc[mask, ['TIMESTAMP', 'DEPARTMENT','STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
+        # df_absent = df_outfilter_gatepass.loc[mask, df_outfilter_gatepass.columns]
+        df_absent = pd.DataFrame.from_dict(df_absent)
 
-displayListAbsent()
+        df_gatepass = df.loc[mask, df.columns]
+        df_gatepass = df_gatepass[~df_gatepass['STAFF NAME'].isin(df_absent['STAFF NAME'])]
+
+        # @st.dialog(f"Staff Absent on {sel_date}")
+        # def displayListAbsent():
+        #     df_absent
+
+        # displayListAbsent()
+        st.header(f"Staff Absent on {sel_date}")
+        df_absent
+
+        # st.header(f"Gatepass on {sel_date}")
+        # df_gatepass
+
+    else:
+        st.header(f"All Absent Data")
+        st.dataframe(df)
