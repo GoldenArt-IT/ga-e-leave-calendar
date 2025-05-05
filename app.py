@@ -75,12 +75,14 @@ with col2:
 
         mask = (df['LEAVE ON'] <= sel_date) & (df['LEAVE UNTIL'] >= sel_date)
 
-        df_absent = df.loc[mask, ['TIMESTAMP', 'DEPARTMENT','STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
-        # df_absent = df_outfilter_gatepass.loc[mask, df_outfilter_gatepass.columns]
+        # df_absent = df.loc[mask, ['TIMESTAMP', 'DEPARTMENT','STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
+        df_absent = df_outfilter_gatepass.loc[mask, df_outfilter_gatepass.columns]
         df_absent = pd.DataFrame.from_dict(df_absent)
+        df_absent = df_absent[['TIMESTAMP', 'DEPARTMENT','STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
 
         df_gatepass = df.loc[mask, df.columns]
         df_gatepass = df_gatepass[~df_gatepass['STAFF NAME'].isin(df_absent['STAFF NAME'])]
+        df_gatepass = df_gatepass[['TIMESTAMP', 'DEPARTMENT','STAFF NAME','GATEPASS OUT','GATEPASS IN', 'REASON']]
 
         # @st.dialog(f"Staff Absent on {sel_date}")
         # def displayListAbsent():
@@ -90,8 +92,8 @@ with col2:
         st.header(f"Staff Absent on {sel_date}")
         df_absent
 
-        # st.header(f"Gatepass on {sel_date}")
-        # df_gatepass
+        st.header(f"Gatepass on {sel_date}")
+        df_gatepass
 
     else:
         st.header(f"All Absent Data")
