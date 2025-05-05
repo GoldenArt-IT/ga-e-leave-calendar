@@ -8,27 +8,56 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(worksheet="DATA", ttl=3000)
 df = df.dropna(how="all")
 
-st.title("Staff Absent List :")
-# sel_date = st.date_input("pick a date").strftime('%m/%d/%Y')
+st.title("GA Man Power Calendar 📅")
 
-# show calendar; returns a dict with callbacks (e.g. dateClick)
-cal_ret = calendar(key="leave_cal")  
+# Convert date columns
+df['LEAVE ON'] = pd.to_datetime(df["LEAVE ON"])
+df['LEAVE UNTIL'] = pd.to_datetime(df["LEAVE UNTIL"])
 
-# extract ISO date when user clicks a day
-if cal_ret and cal_ret.get("callback") == "dateClick":
-    # e.g. "2025-05-29T00:00:00.000Z" → "05/29/2025"
-    sel_date = cal_ret["dateClick"]["date"].split("T")[0]
-    sel_date = pd.to_datetime(sel_date).strftime('%m/%d/%Y')
-    # text = st.write("yahoo")
-else:
-     # fallback to today
-     sel_date = pd.Timestamp("today").strftime('%m/%d/%Y')
-    #  text = st.write("naweee")
+# Generate per-day records for each staff leave
+all_dates = []
+for _, row in df.iterrows():
+    if pd.notna(row['LEAVE ON']) and pd.notna(row['LEAVE UNTIL']):
+        leave_range = pd.date_range(start=row['LEAVE ON'], end=row['LEAVE UNTIL'])
+        for day in leave_range:
+            all_dates.append({'date': day.date(), 'staff': row['STAFF NAME']})
 
+# Count how many staff absent per day
+calendar_df = pd.DataFrame(all_dates)
+summary = calendar_df.groupby('date').count().reset_index()
+summary.columns = ['date', 'count']
+
+# Format for streamlit_calendar
+events = [
+    {
+        "title": f"{row['count']} Absent",
+        "start": row['date'].strftime("%Y-%m-%d"),
+        "allDay": True,
+    }
+    for _, row in summary.iterrows()
+]
+
+# Show calendar
+cal_options = {
+    "initialView": "dayGridMonth",
+    "headerToolbar": {
+        "start": "prev,next today",
+        "center": "title",
+        "end": "dayGridMonth,timeGridWeek"
+    },
+    "events": events,
+}
+
+cal_ret = calendar(key="leave_cal", options=cal_options, events=events)
 # cal_ret
-sel_date
-# text
 
+## extract ISO date when user clicks a day
+if cal_ret and cal_ret.get("callback") == "eventClick":
+    ## e.g. "2025-05-29T00:00:00.000Z" → "05/29/2025"
+    sel_date = cal_ret["eventClick"]["event"]
+    
+    sel_date = pd.to_datetime(sel_date.get('start')).strftime('%m/%d/%Y')
+    # text = st.write("yahoo")
 
 df['LEAVE ON'] = pd.to_datetime(df["LEAVE ON"]).dt.strftime('%m/%d/%Y')
 df['LEAVE UNTIL'] = pd.to_datetime(df["LEAVE UNTIL"]).dt.strftime('%m/%d/%Y')
@@ -36,11 +65,11 @@ df['LEAVE UNTIL'] = pd.to_datetime(df["LEAVE UNTIL"]).dt.strftime('%m/%d/%Y')
 
 mask = (df['LEAVE ON'] <= sel_date) & (df['LEAVE UNTIL'] >= sel_date)
 
-df_absent = df.loc[mask, ['STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
+df_absent = df.loc[mask, ['DEPARTMENT','STAFF NAME','LEAVE ON','LEAVE UNTIL', 'REASON']]
 df_absent = pd.DataFrame.from_dict(df_absent)
 
-@st.dialog("MEH")
-def meh():
+@st.dialog(f"Staff Absent on {sel_date}")
+def displayListAbsent():
     df_absent
 
-meh()
+displayListAbsent()
