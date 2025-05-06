@@ -89,7 +89,7 @@ with col2:
         #     df_absent
 
         # displayListAbsent()
-        st.header(f"Staff Absent on {sel_date}")
+        st.header(f"Staff Leave on {sel_date}")
         df_absent
 
         st.header(f"Gatepass on {sel_date}")
