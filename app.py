@@ -8,7 +8,7 @@ st.set_page_config(layout="wide")
 ## Load data from ALL E LEAVE RECORDS - tabsheet : DATA
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read(worksheet="DATA", ttl=3000)
-df = df.dropna(how="all")
+# df = df.dropna(how="all")
 df_outfilter_gatepass = df[df['GATEPASS OUT'].isna() | (df['GATEPASS OUT'] == '')]
 df_outfilter_gatepass = df_outfilter_gatepass[df_outfilter_gatepass['GATEPASS IN'].isna() | (df_outfilter_gatepass['GATEPASS IN'] == '')]
 clean_df = df.drop(['E LEAVE RECORDS', 'GATEPASS OUT', 'GATEPASS IN', 'DIVISION'], axis=1)
