@@ -116,5 +116,5 @@ with col2:
         df_gatepass
 
     else:
-        st.header(f"All Absent Data")
+        st.header(f"All Leave Data")
         st.dataframe(df)
