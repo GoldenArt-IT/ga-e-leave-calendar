@@ -101,22 +101,19 @@ with col2:
         # displayListAbsent()
 
         st.header(f"Staff Leave on {sel_date}")
-        col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12 = st.columns(12)
+        cols = st.columns(12)
         staff_available_df = staff_data_df[~staff_data_df['STAFF NAME'].isin(df_absent['STAFF NAME'])]
-        staff_available_df = staff_available_df.groupby(by=['DEPARTMENT']).count()
-        staff_groupby_df = staff_data_df.groupby(by=['DEPARTMENT']).count()
+        available_count = staff_available_df.groupby(by=['DEPARTMENT']).size() # count available staff per department
+        total_count = staff_data_df.groupby(by=['DEPARTMENT']).size() # count total staff per department
 
-        col1.metric(label="WELDER", value=staff_available_df.loc['WELDER'], delta=int(staff_available_df.loc['WELDER'].values[0]) - int(staff_groupby_df.loc['WELDER'].values[0]))
-        col2.metric(label="INTERIOR", value=staff_available_df.loc['INTERIOR'], delta=int(staff_available_df.loc['INTERIOR'].values[0]) - int(staff_groupby_df.loc['INTERIOR'].values[0]))
-        col3.metric(label="FRAME", value=staff_available_df.loc['FRAME'], delta=int(staff_available_df.loc['FRAME'].values[0]) - int(staff_groupby_df.loc['FRAME'].values[0]))
-        col4.metric(label="FABRIC", value=staff_available_df.loc['FABRIC'], delta=int(staff_available_df.loc['FABRIC'].values[0]) - int(staff_groupby_df.loc['FABRIC'].values[0]))
-        col5.metric(label="SEWING", value=staff_available_df.loc['SEWING'], delta=int(staff_available_df.loc['SEWING'].values[0]) - int(staff_groupby_df.loc['SEWING'].values[0]))
-        col6.metric(label="SPONGE", value=staff_available_df.loc['SPONGE'], delta=int(staff_available_df.loc['SPONGE'].values[0]) - int(staff_groupby_df.loc['SPONGE'].values[0]))
-        col7.metric(label="SPRAY", value=staff_available_df.loc['SPRAY'], delta=int(staff_available_df.loc['SPRAY'].values[0]) - int(staff_groupby_df.loc['SPRAY'].values[0]))
-        col8.metric(label="ASSEMBLY", value=staff_available_df.loc['ASSEMBLY'], delta=int(staff_available_df.loc['ASSEMBLY'].values[0]) - int(staff_groupby_df.loc['ASSEMBLY'].values[0]))
-        col9.metric(label="PACKING", value=staff_available_df.loc['PACKING'], delta=int(staff_available_df.loc['PACKING'].values[0]) - int(staff_groupby_df.loc['PACKING'].values[0]))
-        col10.metric(label="OUTDOOR", value=staff_available_df.loc['OUTDOOR'], delta=int(staff_available_df.loc['OUTDOOR'].values[0]) - int(staff_groupby_df.loc['OUTDOOR'].values[0]))
-        col11.metric(label="R&D", value=staff_available_df.loc['R&D'], delta=int(staff_available_df.loc['R&D'].values[0]) - int(staff_groupby_df.loc['R&D'].values[0]))
+        departments = ["WELDER", "INTERIOR", "FRAME", "FABRIC", "SEWING", "SPONGE", "SPRAY", "ASSEMBLY", "PACKING", "OUTDOOR", "R&D"]
+
+        # Display metrics
+        for i, dept in enumerate(departments):
+            available = int(available_count.get(dept, 0))
+            total = int(total_count.get(dept, 0))
+            delta = available - total
+            cols[i].metric(label=dept, value=available, delta=delta)
 
         st.table(df_absent)
 
