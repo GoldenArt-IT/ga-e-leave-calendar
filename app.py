@@ -39,7 +39,7 @@ summary.columns = ['date', 'count']
 # Format for streamlit_calendar
 events = [
     {
-        "title": f"{row['count']} Absent",
+        "title": f"{row['count']} Leave",
         "start": row['date'].strftime("%Y-%m-%d"),
         "allDay": True,
     }
